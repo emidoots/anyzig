@@ -886,7 +886,21 @@ fn getVersionUrl(
 
     if (!isMachVersion(semantic_version)) return makeOfficialUrl(arena, semantic_version);
 
-    const download_index_kind: DownloadIndexKind = .mach;
+    return getVersionFromIndex(arena, app_data_path, semantic_version, .mach);
+}
+
+// placeholder so we can add ZLS later
+const VersionIndex = enum { mach };
+
+fn getVersionFromIndex(
+    arena: Allocator,
+    app_data_path: []const u8,
+    semantic_version: SemanticVersion,
+    version_index: VersionIndex,
+) !DownloadUrl {
+    const download_index_kind: DownloadIndexKind = switch (version_index) {
+        .mach => .mach,
+    };
     const index_path = try std.fs.path.join(arena, &.{ app_data_path, download_index_kind.basename() });
     defer arena.free(index_path);
 
