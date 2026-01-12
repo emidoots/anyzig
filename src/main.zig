@@ -881,7 +881,13 @@ fn getVersionUrl(
     if (build_options.exe == .zls) return DownloadUrl.initOfficial(std.fmt.allocPrint(
         arena,
         "https://builds.zigtools.org/zls-{s}-{}.{s}",
-        .{ os_arch, semantic_version, archive_ext },
+        .{ switch (determineVersionKind(semantic_version)) {
+            .dev => arch_os,
+            .release => |release| switch (release.order(arch_os_swap_release)) {
+                .lt => os_arch,
+                .gt, .eq => arch_os,
+            },
+        }, semantic_version, archive_ext },
     ) catch |e| oom(e));
 
     if (!isMachVersion(semantic_version)) return makeOfficialUrl(arena, semantic_version);
